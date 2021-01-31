@@ -14,11 +14,20 @@ public class GameManager : MonoBehaviour
     private void AddMoney(long cash)
     {
         _money += cash;
-        _textMoney.text = _money.ToString();
+        _textMoney.text = _money + "$";
     }
 
     public void AddMoneyForClick()
     {
         AddMoney(_moneyForClick);
+    }
+
+    public void TryBuy(int cost, int add)
+    {
+        if (_money >= cost)
+        {
+            AddMoney(-cost);
+            _moneyForClick += add;
+        }
     }
 }
