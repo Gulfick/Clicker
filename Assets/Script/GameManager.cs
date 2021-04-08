@@ -6,17 +6,22 @@ using UnityEngine;
 
 public class GameManager : MonoBehaviour
 {
-    [SerializeField] private TextMeshProUGUI _textMoney;
+    [SerializeField] private TextMeshProUGUI _textMoney, _textPerSecond;
     private long _money;
 
-    private int _moneyForClick = 1;
-    private string _moneyForClickKey = "MoneyForClick", _moneyKey = "Money";
+    private int _moneyForClick = 1, _moneyPerSecond;
+    private string _moneyForClickKey = "MoneyForClick", _moneyKey = "Money", _moneyPerSecondKey = "MoneyPerSecond";
 
     private void OnEnable()
     {
-        _money = long.Parse(PlayerPrefs.GetString(_moneyKey));
+        var moneyString = PlayerPrefs.GetString(_moneyKey);
+        if(moneyString.Length > 0)
+            _money = long.Parse(moneyString);
         _moneyForClick = PlayerPrefs.GetInt(_moneyForClickKey);
+        _moneyPerSecond = PlayerPrefs.GetInt(_moneyPerSecondKey);
         _textMoney.text = _money + "$";
+        _textPerSecond.text = _moneyPerSecond + "$";
+        StartCoroutine(PerSecondUpdate());
     }
 
     private void AddMoney(long cash)
@@ -31,14 +36,39 @@ public class GameManager : MonoBehaviour
         AddMoney(_moneyForClick);
     }
 
-    public void TryBuy(int cost, int add, string name)
+    public void AddMoneyX100()
+    {
+        AddMoney(_moneyForClick * 100);
+    }
+
+    public void TryBuyForClick(int cost, int add, string name)
+    {
+        TryBuy(cost,add,name,_moneyForClickKey, ref _moneyForClick);
+    }
+    
+    public void TryBuyPerSecond(int cost, int add, string name)
+    {
+        TryBuy(cost,add,name, _moneyPerSecondKey, ref _moneyPerSecond);
+        _textPerSecond.text = _moneyPerSecond + "$";
+    }
+
+    private void TryBuy(int cost, int add, string name, string saveKey, ref int baseValue)
     {
         if (_money >= cost)
         {
             AddMoney(-cost);
-            _moneyForClick += add;
+            baseValue += add;
             PlayerPrefs.SetInt(name, PlayerPrefs.GetInt(name) + 1);
-            PlayerPrefs.SetInt(_moneyForClickKey, _moneyForClick);
+            PlayerPrefs.SetInt(saveKey, baseValue);
+        }
+    }
+
+    private IEnumerator PerSecondUpdate()
+    {
+        while (true)
+        {
+            AddMoney(_moneyPerSecond);
+            yield return new WaitForSeconds(1);
         }
     }
 }
