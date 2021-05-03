@@ -7,6 +7,8 @@ using UnityEngine;
 public class GameManager : MonoBehaviour
 {
     [SerializeField] private TextMeshProUGUI _textMoney, _textPerSecond;
+    [SerializeField] private GameObject _textMoneyForClickPrefab;
+    [SerializeField] private Transform _mainCanvas;
     private long _money;
 
     private int _moneyForClick = 1, _moneyPerSecond;
@@ -34,6 +36,7 @@ public class GameManager : MonoBehaviour
     public void AddMoneyForClick()
     {
         AddMoney(_moneyForClick);
+        Instantiate(_textMoneyForClickPrefab, Input.mousePosition, Quaternion.identity, _mainCanvas).GetComponent<TextMoneyForClick>().Spawn(_moneyForClick);
     }
 
     public void AddMoneyX100()
